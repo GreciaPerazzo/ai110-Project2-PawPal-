@@ -17,9 +17,9 @@ class Task:
     task_type: str  # e.g., walk, feeding, medication, grooming, vet appointment
     date: date
     time: time
+    pet: Pet 
     notes: str = ""
-    pet: Pet | None = None  # optional association to a Pet
-
+    
 
 class Owner:
     def __init__(self, name: str):
