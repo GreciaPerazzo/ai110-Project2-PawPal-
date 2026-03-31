@@ -2,16 +2,32 @@
 
 ## 1. System Design
 
+Core Actions (Step 1 in instructions):
+1. Add a pet - The user can create a new pet profile with details like name, age, and breed.
+2. Schedule and track tasks - The user can schedule and track daily tasks for a pet like feeding (with the type of food and amount), walks, medication reminders (with the dose).
+3. View and manage appointments - The user can schedule appointments and view upcoming vet and grooming appointments, and get reminders when they are approaching. 
+
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+My initial UML design has 4 classes: Owner, Pet, Task, and Scheduler.
+
+Owner- stores the owner's name and a list of their pets. It can add and remove pets. 
+Pet- Hold's the pet's name, breed, and age. It stores data.
+Task- holds the task type like walk, feeding, medication, grooming, and vet appointment, and other like data, time, and notes like food amount or medication dose. 
+Scheduler- holds a list of tasks and can add or remove tasks, get today's tasks and send reminders. 
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
 
+After asking Copilot to review the skeleton, I made two changes to the Task class. 
+1. I made pet a required field instead of optional because every task should always be linked to a pet. 
+2. Reordered the fields in the Task dataclass so that required fields come before optional fields.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
