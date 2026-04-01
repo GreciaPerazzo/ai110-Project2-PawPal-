@@ -69,3 +69,29 @@ When marked complete, daily/weekly tasks automatically create a new occurrence, 
 The `detect_conflicts()` method scans your schedule and alerts you to double-bookings. It identifies when two or more tasks are scheduled for the same pet at the same date and time, helping prevent scheduling errors before they happen.
 
 These features work together to keep your pet care routine organized, predictable, and conflict-free.
+
+## Testing PawPal+
+
+### Running Tests
+
+Execute the test suite with:
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+### Test Coverage
+
+The PawPal+ test suite includes **5 comprehensive tests** that validate core functionality:
+
+1. **Task Completion** — Verifies that `mark_complete()` correctly updates task status
+2. **Task Addition** — Confirms that tasks are properly added to a pet's task list
+3. **Sorting Correctness** — Validates that `sort_by_time()` returns tasks in chronological order (morning → afternoon → evening)
+4. **Recurrence Logic** — Tests that daily/weekly tasks automatically create next occurrences when marked complete, with correct date and time
+5. **Conflict Detection** — Ensures `detect_conflicts()` correctly identifies and reports tasks scheduled at the same time for the same pet
+
+### Test Confidence
+
+**★★★★☆ 4 out of 5 stars**
+
+The test suite covers critical happy-path scenarios and essential edge cases (empty states, sorting order, recurring task generation). Additional confidence would come from tests for cross-boundary date handling (month/year changes), extended recurring sequences, and more comprehensive filtering variations.
