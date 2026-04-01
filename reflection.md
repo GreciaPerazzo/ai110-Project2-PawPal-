@@ -37,12 +37,22 @@ After asking Copilot to review the skeleton, I made two changes to the Task clas
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+My scheduler considers time,status, pet, frequency, and conflicts.
+I decided time was the most important constraint because 
+a pet owner needs to know what to do and when, so sorting 
+by time makes the schedule easy to follow.
+
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
----
+The detect_conflicts() method checks for exact time matches 
+rather than overlapping durations. This means two tasks at 2:00 PM and 2:30 PM would NOT be flagged as a conflict even 
+if they overlap. This tradeoff is reasonable because exact 
+time matching is simpler to implement and understand, and 
+for a basic pet care app it is good enough.
 
 ## 3. AI Collaboration
 

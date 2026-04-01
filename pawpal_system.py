@@ -12,10 +12,30 @@ class Task:
     pet: Pet 
     notes: str = ""
     completed: bool = False
+    frequency: str = "once"  # "once", "daily", or "weekly"
 
     def mark_complete(self) -> None:
-        """Mark the task as completed."""
+        """Mark the task as completed. If daily/weekly, create next occurrence."""
         self.completed = True
+        
+        # For recurring tasks, create the next occurrence
+        if self.frequency in ("daily", "weekly"):
+            days_to_add = 1 if self.frequency == "daily" else 7
+            next_date = self.date + timedelta(days=days_to_add)
+            
+            # Create a new task for the next occurrence
+            next_task = Task(
+                task_type=self.task_type,
+                date=next_date,
+                time=self.time,
+                pet=self.pet,
+                notes=self.notes,
+                completed=False,
+                frequency=self.frequency
+            )
+            
+            # Add the new task to the pet's task list
+            self.pet.add_task(next_task)
 
     def is_completed(self) -> bool:
         """Return whether the task is completed."""
@@ -138,3 +158,63 @@ class Scheduler:
         """Return all incomplete tasks with dates before today."""
         today = datetime.today().date()
         return [task for task in self.tasks if task.date < today and not task.completed]
+
+    def sort_by_time(self) -> List[Task]:
+        """Return tasks sorted by their time attribute."""
+        # Use lambda as the key for sorting
+        return sorted(self.tasks, key=lambda t: t.time)
+
+    def filter_tasks(self, status: str | None = None, pet_name: str | None = None) -> List[Task]:
+        """Filter tasks by completion status ('completed'/'pending') or by pet name."""
+        filtered = self.tasks
+
+        if status is not None:
+            if status not in {"completed", "pending"}:
+                raise ValueError("status must be 'completed' or 'pending'")
+            completed_flag = status == "completed"
+            filtered = [task for task in filtered if task.completed == completed_flag]
+
+        if pet_name is not None:
+            filtered = [task for task in filtered if task.pet.name.lower() == pet_name.lower()]
+
+        return filtered
+
+    def detect_conflicts(self) -> str:
+        """
+        Detect scheduling conflicts for each pet.
+        Returns a warning message listing any tasks scheduled at the same date and time.
+        """
+        conflicts = []
+        
+        # Group tasks by pet
+        for pet in self.owner.pets:
+            pet_tasks = pet.get_tasks()
+            
+            # Check for duplicate (date, time) combinations
+            seen = {}  # Dictionary to track (date, time) -> list of tasks
+            
+            for task in pet_tasks:
+                key = (task.date, task.time)
+                
+                if key in seen:
+                    # Conflict found!
+                    seen[key].append(task)
+                else:
+                    seen[key] = [task]
+            
+            # Build conflict messages for this pet
+            for (task_date, task_time), tasks in seen.items():
+                if len(tasks) > 1:
+                    task_types = ", ".join([t.task_type for t in tasks])
+                    conflicts.append(
+                        f"⚠️  {pet.name}: {len(tasks)} tasks scheduled on {task_date} at {task_time} "
+                        f"({task_types})"
+                    )
+        
+        # Return message
+        if conflicts:
+            message = "SCHEDULING CONFLICTS DETECTED:\n" + "\n".join(conflicts)
+        else:
+            message = "✓ No scheduling conflicts detected."
+        
+        return message
