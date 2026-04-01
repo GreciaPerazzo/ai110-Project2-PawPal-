@@ -1,6 +1,6 @@
 import streamlit as st
 from pawpal_system import Owner, Pet, Task, Scheduler
-from datetime import date, time
+from datetime import date, time, timedelta
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="wide")
 
@@ -29,7 +29,7 @@ with st.sidebar:
     new_owner_name = st.text_input("Update owner name", value=owner.name)
     if st.button("Update Name"):
         owner.name = new_owner_name
-        st.success("Owner name updated!")
+        st.success("✅ Owner name updated!")
 
 # ============================================================================
 # Main Content: Add a Pet
@@ -50,11 +50,11 @@ if st.button("Add Pet", key="add_pet_btn"):
     # Check if pet already exists
     existing_names = [pet.name for pet in owner.get_pets()]
     if pet_name in existing_names:
-        st.warning(f"A pet named '{pet_name}' already exists!")
+        st.warning(f"⚠️ A pet named '{pet_name}' already exists!")
     else:
         new_pet = Pet(name=pet_name, breed=pet_breed, species=pet_species, age=pet_age)
         owner.add_pet(new_pet)
-        st.success(f"✓ Added {pet_name} the {pet_species}!")
+        st.success(f"✅ Successfully added {pet_name} the {pet_species}!")
 
 st.divider()
 
@@ -111,9 +111,9 @@ if owner.get_pets():
                 notes=task_notes
             )
             selected_pet_obj.add_task(new_task)
-            st.success(f"✓ Added {task_type} task for {selected_pet}!")
+            st.success(f"✅ Added '{task_type}' task for {selected_pet}!")
 else:
-    st.warning("Please add a pet first before creating tasks.")
+    st.warning("⚠️ Please add a pet first before creating tasks.")
 
 st.divider()
 
@@ -123,12 +123,20 @@ st.divider()
 st.header("📅 Today's Schedule")
 
 scheduler = Scheduler(owner)
+
+# Check for scheduling conflicts
+conflict_message = scheduler.detect_conflicts()
+if "SCHEDULING CONFLICTS DETECTED" in conflict_message:
+    st.warning(f"⚠️ {conflict_message}")
+
 todays_tasks = scheduler.get_todays_tasks()
 
-# Sort tasks by time
-todays_tasks.sort(key=lambda t: t.time)
+# Use sort_by_time() to ensure chronological order
+todays_tasks = scheduler.sort_by_time() if todays_tasks else []
+todays_tasks = [t for t in todays_tasks if t.date == date.today()]
 
 if todays_tasks:
+    st.success(f"✓ {len(todays_tasks)} tasks scheduled for today")
     st.subheader(f"Tasks for {date.today()}")
     
     for idx, task in enumerate(todays_tasks, 1):
@@ -140,6 +148,7 @@ if todays_tasks:
             if is_completed != task.completed:
                 if is_completed:
                     task.mark_complete()
+                    st.success(f"✓ Marked '{task.task_type}' as complete")
                 else:
                     task.completed = False
         
@@ -169,4 +178,4 @@ if todays_tasks:
     with col3:
         st.metric("Pending", len(todays_tasks) - completed_count)
 else:
-    st.info("No tasks scheduled for today. Add some tasks above!")
+    st.info("📋 No tasks scheduled for today. Add some tasks above!")

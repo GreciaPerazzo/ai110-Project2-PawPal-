@@ -42,33 +42,52 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
-## Smarter Scheduling Features
+## Features
 
-PawPal+ now includes powerful scheduling utilities to help pet owners organize and manage tasks efficiently:
+PawPal+ includes powerful scheduling algorithms and utilities to help pet owners organize and manage tasks efficiently:
 
-### 1. **Task Sorting**
-Sort all tasks chronologically using the `sort_by_time()` method. Displays your pet care schedule in order from earliest to latest, making it easy to see what needs to happen first.
+### 1. **Chronological Task Sorting**
+The `sort_by_time()` algorithm orders all tasks by their scheduled time, from earliest to latest. This uses Python's built-in sorting with a time-based lambda key to arrange pet care activities in chronological order, making it easy to see what needs to happen first in your day.
 
-### 2. **Task Filtering**
-Use `filter_tasks()` to narrow down your task list by:
-- **Status**: View only pending tasks or completed tasks
-- **Pet Name**: View all tasks for a specific pet
-- **Combined**: Filter by both status and pet name for powerful scoping
+**Example:** Morning walk (8:00 AM) → Medication (9:00 AM) → Grooming (3:30 PM) → Play time (6:00 PM)
 
-Example: `scheduler.filter_tasks(status="pending", pet_name="Buddy")`
+### 2. **Advanced Task Filtering**
+The `filter_tasks()` method implements a dual-filter algorithm that allows you to narrow down your task list by:
+- **Status**: Filter for `"pending"` (incomplete) or `"completed"` tasks only
+- **Pet Name**: View all tasks for a specific pet, case-insensitive matching
+- **Combined**: Chain both filters together for powerful, multi-dimensional scoping
 
-### 3. **Recurring Tasks**
-Schedule tasks that automatically repeat. Set `frequency` to:
-- **`"daily"`**: Task reschedules for tomorrow at the same time
-- **`"weekly"`**: Task reschedules 7 days later at the same time
+The algorithm applies filters sequentially, reducing the task set at each step for efficient filtering of large task lists.
+
+**Example:** `scheduler.filter_tasks(status="pending", pet_name="Buddy")` returns only incomplete tasks for Buddy.
+
+### 3. **Automatic Recurring Task Management**
+Tasks can be configured with three frequency modes using the `frequency` field:
+- **`"daily"`**: When marked complete, automatically reschedules for tomorrow at the same time
+- **`"weekly"`**: When marked complete, automatically reschedules 7 days later at the same time
 - **`"once"`**: One-time task (no automatic rescheduling)
 
-When marked complete, daily/weekly tasks automatically create a new occurrence, ensuring you never miss a pattern.
+The `mark_complete()` method implements the recurrence logic: it sets the task status to completed and, for recurring tasks, creates a new Task object with the next occurrence date/time and adds it back to the pet's task list. This ensures recurring routines like daily walks and weekly grooming appointments never get forgotten.
 
-### 4. **Conflict Detection**
-The `detect_conflicts()` method scans your schedule and alerts you to double-bookings. It identifies when two or more tasks are scheduled for the same pet at the same date and time, helping prevent scheduling errors before they happen.
+### 4. **Scheduling Conflict Detection**
+The `detect_conflicts()` algorithm scans all scheduled tasks and identifies conflicts—situations where two or more tasks are assigned to the same pet at the exact same date and time. It uses a dictionary-based approach to group tasks by `(date, time)` pairs, then flags any pairs with multiple tasks.
 
-These features work together to keep your pet care routine organized, predictable, and conflict-free.
+**Example:** ⚠️ Buddy: 2 tasks scheduled on 2026-03-31 at 14:00 (Feeding, Medication)
+
+This helps prevent double-booking errors before they happen.
+
+### 5. **Today's Schedule View**
+The `get_todays_tasks()` method retrieves all tasks scheduled for the current date, giving pet owners a focused, real-time view of their immediate care obligations. Combined with `sort_by_time()`, this creates a clean, chronologically-ordered daily agenda.
+
+The app displays today's tasks with task type, pet name, scheduled time, notes, and completion status, along with summary metrics (total tasks, completed count, pending count).
+
+---
+
+These features work together through the `Scheduler` class to keep your pet care routine organized, predictable, and conflict-free.
+
+## Demo
+
+![PawPal+ Demo](demo_screenshot.png)
 
 ## Testing PawPal+
 
